@@ -1,35 +1,26 @@
-## Modern JWT Implementation with Enhanced Security
+## Security
 
-This project has been upgraded to Nim 2.2.0 with significant cryptographic improvements:
+This library implements JWT (RFC 7519) with BearSSL as the cryptographic backend.
 
-### Security Enhancements
-- **Constant-time operations** to prevent timing attacks
-- **Enhanced key validation** with minimum key size requirements (RSA ≥ 2048 bits)
-- **Secure memory handling** with proper cleanup of sensitive data
-- **Algorithm validation** rejecting insecure 'none' algorithm
-- **Enhanced time-based claim verification** with clock skew tolerance
+### Security Features
 
-### New Cryptographic Features
-- **PSS algorithm support** (PS256, PS384, PS512) - framework ready
-- **Secure random number generation** capabilities
-- **Improved error handling** with secure memory cleanup on failure
-- **Enhanced EC and RSA validation** with curve and key size checks
+- **Constant-time comparison** - Signature verification uses constant-time byte comparison to prevent timing attacks
+- **Minimum key sizes** - HMAC keys must be >= 32 bytes; `none` algorithm is always rejected
+- **Secure memory** - Sensitive buffers (digests, keys) are zeroed after use on failure paths
+- **Time claim validation** - `exp`, `nbf`, and `iat` are validated with configurable clock skew tolerance (30s for nbf, 5min for iat)
+- **Algorithm pinning** - `verify()` requires the caller to specify the expected algorithm, preventing algorithm confusion attacks
 
-### Modern Standards Compliance
-- **RFC 7519 compliant** JWT implementation
-- **Nim 2.2.0 compatibility** with modern language features
-- **BearSSL backend** for cryptographic operations
-- **Security best practices** built-in by default
+### What This Library Does NOT Do
 
-### Performance Improvements
-- **Optimized memory usage** with better buffer management
-- **Fast cryptographic operations** leveraging BearSSL
-- **Efficient base64 encoding/decoding** with URL-safe variants
+- **Audience (`aud`) validation** - Must be done by the application
+- **Issuer (`iss`) validation** - Must be done by the application
+- **Token blacklisting / revocation** - Must be implemented at the application layer
+- **Key rotation** - Use `kid` header claim and manage keys in your application
 
-### API Changes
-- Enhanced `verify()` with comprehensive security checks
-- Improved error handling with specific security exceptions
-- New utility functions for secure comparisons
-- Enhanced time claim validation with security margins
+### Recommendations
 
-This modern implementation provides enterprise-grade security while maintaining backward compatibility for existing JWT workflows.
+- Use HS256 for symmetric scenarios, RS256 or ES256 for asymmetric
+- Keep access token lifetime short (15 minutes or less)
+- Use HTTPS for all token transport
+- Store secrets outside source code (environment variables, secret managers)
+- Rotate keys periodically and use `kid` to identify which key signed a token

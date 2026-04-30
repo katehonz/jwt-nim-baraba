@@ -404,7 +404,7 @@ proc benchmarkAlgorithm(algorithm: SignatureAlgorithm, iterations: int): float =
   result = cpuTime() - start
 ```
 
-### Results (Nim 2.2.0, Intel i7)
+### Results (Nim 2.0.0, Intel i7)
 
 | Algorithm | 1K Tokens | 10K Tokens | Memory | CPU Usage |
 |-----------|------------|-------------|---------|-----------|

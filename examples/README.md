@@ -64,7 +64,7 @@ nim c -r examples/security_best_practices.nim
 ### Prerequisites
 
 All examples require:
-- Nim 2.2.0 or later
+- Nim 2.0.0 or later
 - JWT for Nim library installed
 - BearSSL dependency
 
@@ -72,8 +72,8 @@ All examples require:
 # Install JWT library
 nimble install jwt
 
-# Ensure Nim 2.2.0+
-choosenim install 2.2.0
+# Ensure Nim 2.0.0+
+choosenim install 2.0.0
 ```
 
 ### Running Examples
@@ -233,8 +233,8 @@ These examples are for educational purposes. In production:
 
 **Compilation Errors:**
 ```bash
-# Ensure Nim 2.2.0+ is installed
-choosenim install 2.2.0
+# Ensure Nim 2.0.0+ is installed
+choosenim install 2.0.0
 
 # Check JWT library installation
 nimble list jwt

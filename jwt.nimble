@@ -1,7 +1,7 @@
 # Package
-version       = "2.0.0"
+version       = "2.1.0"
 author        = "Yuriy Glukhov"
-description   = "Modern JSON Web Tokens for Nim with enhanced cryptography"
+description   = "JSON Web Token library for Nim with BearSSL cryptography"
 license       = "MIT"
 
 # Deps

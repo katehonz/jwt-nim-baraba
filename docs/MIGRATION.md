@@ -19,13 +19,13 @@ JWT for Nim v2.0 introduces significant security enhancements, modern cryptograp
 ### 1. Nim Version Requirement
 
 **v0.x:** `requires "nim >= 0.19.0"`
-**v2.0:** `requires "nim >= 2.2.0"`
+**v2.0:** `requires "nim >= 2.0.0"`
 
 **Action Required:**
 ```bash
-# Update Nim to 2.2.0 or later
+# Update Nim to 2.0.0 or later
 choosenim update self
-choosenim install 2.2.0
+choosenim install 2.0.0
 ```
 
 ### 2. Algorithm Security Changes
@@ -322,9 +322,9 @@ requires "bearssl"
 **v2.0:**
 ```nim
 # jwt.nimble
-version = "2.0.0"
-requires "nim >= 2.2.0"
-requires "bearssl >= 0.6"
+version = "2.1.0"
+requires "nim >= 2.0.0"
+requires "bearssl >= 0.2"
 ```
 
 **Action Required:** Update your project's jwt.nimble dependency
@@ -552,7 +552,7 @@ claims["exp"] = newTimeClaim(getTime() + 7.days)      # Refresh token
 JWT for Nim v2.0 provides significantly enhanced security while maintaining backward compatibility for most use cases. The migration process is straightforward for basic operations, with optional enhancements available for improved security.
 
 ### Key Takeaways
-1. **Update Nim to 2.2.0+** - Required for v2.0
+1. **Update Nim to 2.0.0+** - Required for v2.0
 2. **Review key sizes** - Ensure minimum security requirements
 3. **Update error handling** - Handle new exception types
 4. **Test thoroughly** - Validate all functionality works as expected

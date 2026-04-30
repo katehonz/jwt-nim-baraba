@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document provides comprehensive API documentation for the JWT (JSON Web Token) implementation in Nim 2.2.0 with enhanced security features.
+This document provides comprehensive API documentation for the JWT (JSON Web Token) implementation in Nim 2.0.0 with enhanced security features.
 
 ## Table of Contents
 

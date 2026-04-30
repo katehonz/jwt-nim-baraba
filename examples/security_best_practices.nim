@@ -1,16 +1,17 @@
-import jwt, json, times, tables, random, strutils
+import jwt, json, times, tables, strutils, sets
 
 # Security Best Practices Example
 # Demonstrates advanced JWT security features and patterns
 
 echo "=== JWT Security Best Practices Example ==="
 
-# Secure key generation
+# Secure key generation using /dev/urandom (CSPRNG)
 proc generateSecureKey(length: int = 32): string =
-  ## Generate cryptographically secure random key
+  ## Generate cryptographically secure random key using /dev/urandom
   var bytes = newSeq[byte](length)
-  for i in 0..<length:
-    bytes[i] = byte(random(255))
+  let f = open("/dev/urandom")
+  discard f.readBytes(bytes, 0, length)
+  f.close()
   result = encodeUrlSafe(bytes)
 
 # Token blacklist for replay protection

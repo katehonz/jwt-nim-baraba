@@ -18,7 +18,7 @@ proc tokenWithAlg(alg: string): JWT =
 
 proc signedHSToken(alg: string): JWT =
   result = tokenWithAlg(alg)
-  result.sign("your-256-secret")
+  result.sign("your-256-bit-secret-key-here!")
 
 const
   rsPrivateKey = """-----BEGIN RSA PRIVATE KEY-----
@@ -104,10 +104,9 @@ proc signedECToken(alg, key: string): JWT =
 
 suite "Token tests":
   test "Load from JSON and verify":
-    # Load a token from json
     var
       token = getToken()
-      secret = "secret"
+      secret = "your-256-bit-secret-key-here!"
 
     token.sign(secret)
 
@@ -130,43 +129,32 @@ suite "Token tests":
       token.verifyTimeClaims
 
   test "HS Signature":
-    # Test that tokens can be signed and verified correctly
-    # Note: Exact string comparison removed due to JSON key ordering differences between Nim versions
     var hs256Token = signedHSToken("HS256")
     var hs384Token = signedHSToken("HS384")
     var hs512Token = signedHSToken("HS512")
     check:
-      # Verify signature can be validated
-      hs256Token.verify("your-256-secret", HS256)
-      hs384Token.verify("your-256-secret", HS384)
-      hs512Token.verify("your-256-secret", HS512)
-      # Verify wrong secret fails
+      hs256Token.verify("your-256-bit-secret-key-here!", HS256)
+      hs384Token.verify("your-256-bit-secret-key-here!", HS384)
+      hs512Token.verify("your-256-bit-secret-key-here!", HS512)
       not hs256Token.verify("wrong-secret", HS256)
-    # Verify claims are intact after roundtrip
     let parsed = ($hs256Token).toJWT()
     check:
       parsed.claims["sub"].node.str == "1234567890"
       parsed.claims["name"].node.str == "John Doe"
 
   test "RS Signature":
-    # Test RSA signature creation and verification
-    # Note: Exact string comparison removed due to JSON key ordering differences between Nim versions
     check:
       signedRSToken("RS256").verify(rsPublicKey, RS256)
       signedRSToken("RS384").verify(rsPublicKey, RS384)
       signedRSToken("RS512").verify(rsPublicKey, RS512)
-    # Verify claims roundtrip
     let parsedRS = ($signedRSToken("RS256")).toJWT()
     check parsedRS.claims["sub"].node.str == "1234567890"
 
   test "EC Signature":
-    # Test ECDSA signature creation and verification
-    # Note: ES* signatures are non-deterministic, so we only verify they work
     check:
       signedECToken("ES256", ec256PrivKey).verify(ec256PubKey, ES256)
       signedECToken("ES384", ec384PrivKey).verify(ec384PubKey, ES384)
       signedECToken("ES512", ec512PrivKey).verify(ec512PubKey, ES512)
-    # Verify claims roundtrip
     let parsedEC = ($signedECToken("ES256", ec256PrivKey)).toJWT()
     check parsedEC.claims["sub"].node.str == "1234567890"
 
@@ -185,3 +173,88 @@ suite "Token tests":
     let signed = $token
     let decoded = signed.toJWT()
     check decoded.header["kid"].getStr() == "something"
+
+  test "Verify rejects wrong algorithm":
+    var token = signedHSToken("HS256")
+    check token.verify("your-256-bit-secret-key-here!", HS384) == false
+
+  test "Verify rejects none algorithm":
+    let header = %*{"alg": "none", "typ": "JWT"}
+    expect(SecurityError):
+      discard header.toHeader
+
+  test "Sign rejects empty data":
+    var token = getToken()
+    token.sign("your-256-bit-secret-key-here!")
+    var token2 = getToken()
+    token2.sign("your-256-bit-secret-key-here!")
+    check ($token).len > 0
+
+  test "signString rejects empty data":
+    expect(ValueError):
+      discard signString("", "secret")
+
+  test "signString rejects empty secret":
+    expect(ValueError):
+      discard signString("data", "")
+
+  test "signString rejects short HMAC key":
+    expect(ValueError):
+      discard signString("data", "short")
+
+  test "toJWT from string roundtrip":
+    var token = signedHSToken("HS256")
+    let tokenStr = $token
+    let parsed = tokenStr.toJWT()
+    check parsed.verify("your-256-bit-secret-key-here!", HS256)
+
+  test "toJWT from JsonNode":
+    let node = %*{
+      "header": {"alg": "HS256", "typ": "JWT"},
+      "claims": {"sub": "user1"}
+    }
+    let token = node.toJWT()
+    check token.claims["sub"].node.str == "user1"
+
+  test "Time claims verification via verify":
+    let
+      now = getTime().toUnix.int
+      exp = now - 60
+    var token = getToken(claims = %{"exp": %exp})
+    token.sign("your-256-bit-secret-key-here!")
+    check token.verify("your-256-bit-secret-key-here!", HS512) == false
+
+  test "Loaded vs parsed for initJWT tokens":
+    let header = %*{"alg": "HS256", "typ": "JWT"}
+    let claims = %*{"sub": "test"}
+    let token = initJWT(header.toHeader, claims.toClaims)
+    check token.loaded == token.parsed
+
+  test "Invalid token string":
+    expect(InvalidToken):
+      discard "invalid".toJWT()
+
+  test "Invalid token - two parts":
+    expect(InvalidToken):
+      discard "abc.def".toJWT()
+
+  test "RS wrong key verification":
+    var token = signedRSToken("RS256")
+    check token.verify(ec256PubKey, RS256) == false
+
+  test "EC wrong key verification":
+    var token = signedECToken("ES256", ec256PrivKey)
+    check token.verify(ec384PubKey, ES256) == false
+
+  test "verifyTimeClaims passes for valid token":
+    let
+      past = getTime().toUnix.int - 60
+      future = getTime().toUnix.int + 3600
+    let token = getToken(claims = %{"nbf": %past, "exp": %future})
+    token.verifyTimeClaims()
+
+  test "IAT future rejection":
+    let farFuture = getTime().toUnix.int + 600
+    let token = getToken(claims = %{"iat": %farFuture})
+    expect(InvalidToken):
+      token.verifyTimeClaims()

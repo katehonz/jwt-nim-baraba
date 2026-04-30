@@ -33,7 +33,10 @@ proc decodeUrlSafeAsString*(s: string): string =
   base64.decode(s)
 
 proc decodeUrlSafe*(s: string): seq[byte] =
-  cast[seq[byte]](decodeUrlSafeAsString(s))
+  let decoded = decodeUrlSafeAsString(s)
+  result = newSeq[byte](decoded.len)
+  if decoded.len > 0:
+    copyMem(addr result[0], unsafeAddr decoded[0], decoded.len)
 
 proc toUtf*(s: seq[byte]): string =
   result = newString(s.len)

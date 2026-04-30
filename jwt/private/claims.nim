@@ -96,7 +96,7 @@ proc newIAT*(i: int64): Claim = return newTimeClaim(IAT, i)
 
 # JTI
 proc newJTI*(j: JsonNode): Claim =
-    assert j.kind == JString
+    checkJsonNodeKind(j, JString)
     return newClaim(JTI, j)
 
 proc newJTI*(s: string): Claim =
