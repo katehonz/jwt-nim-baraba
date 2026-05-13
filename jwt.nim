@@ -103,12 +103,24 @@ proc verifySignature*(data: string, signature: seq[byte], secret: string,
       result = secureCompare(dataSignature, signature)
     except CatchableError:
       result = false
-  of RS256: result = crypto.bearVerifyRSPem(data, secret, signature, addr sha256Vtable, HASH_OID_SHA256, sha256SIZE)
-  of RS384: result = crypto.bearVerifyRSPem(data, secret, signature, addr sha384Vtable, HASH_OID_SHA384, sha384SIZE)
-  of RS512: result = crypto.bearVerifyRSPem(data, secret, signature, addr sha512Vtable, HASH_OID_SHA512, sha512SIZE)
-  of ES256: result = crypto.bearVerifyECPem(data, secret, signature, addr sha256Vtable, sha256SIZE)
-  of ES384: result = crypto.bearVerifyECPem(data, secret, signature, addr sha384Vtable, sha384SIZE)
-  of ES512: result = crypto.bearVerifyECPem(data, secret, signature, addr sha512Vtable, sha512SIZE)
+  of RS256:
+    try: result = crypto.bearVerifyRSPem(data, secret, signature, addr sha256Vtable, HASH_OID_SHA256, sha256SIZE)
+    except CatchableError: result = false
+  of RS384:
+    try: result = crypto.bearVerifyRSPem(data, secret, signature, addr sha384Vtable, HASH_OID_SHA384, sha384SIZE)
+    except CatchableError: result = false
+  of RS512:
+    try: result = crypto.bearVerifyRSPem(data, secret, signature, addr sha512Vtable, HASH_OID_SHA512, sha512SIZE)
+    except CatchableError: result = false
+  of ES256:
+    try: result = crypto.bearVerifyECPem(data, secret, signature, addr sha256Vtable, sha256SIZE)
+    except CatchableError: result = false
+  of ES384:
+    try: result = crypto.bearVerifyECPem(data, secret, signature, addr sha384Vtable, sha384SIZE)
+    except CatchableError: result = false
+  of ES512:
+    try: result = crypto.bearVerifyECPem(data, secret, signature, addr sha512Vtable, sha512SIZE)
+    except CatchableError: result = false
   of PS256, PS384, PS512: return false
   of NONE: return false
 

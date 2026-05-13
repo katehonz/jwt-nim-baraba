@@ -1,4 +1,4 @@
-import json, strutils
+import json, strutils, volatile
 
 from base64 import nil
 
@@ -64,9 +64,8 @@ proc secureCompare*(a, b: string): bool =
   secureCompare(a.toOpenArrayByte(0, a.high), b.toOpenArrayByte(0, b.high))
 
 proc zeroMem*(data: pointer, size: int) =
-  ## Secure memory clearing
+  ## Secure memory clearing using volatile stores to prevent
+  ## compiler optimization from eliminating the zeroing.
   var p = cast[ptr UncheckedArray[byte]](data)
   for i in 0..<size:
-    p[i] = 0
-
-# Note: volatile keyword not available in Nim, using simple memory clearing
+    volatileStore(addr p[i], 0'u8)

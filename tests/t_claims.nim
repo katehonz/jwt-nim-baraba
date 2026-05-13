@@ -1,4 +1,4 @@
-import json, unittest
+import json, times, tables, unittest
 
 import ../jwt
 
@@ -57,7 +57,7 @@ suite "Claim ops":
   test "getClaimTime":
     let iat = newIAT(1516239022'i64)
     let t = iat.getClaimTime
-    check t.toUnix == 1516239022
+    check t.toUnix() == 1516239022
 
   test "Convenience claim constructors":
     let s = newStringClaim("hello")
@@ -73,8 +73,8 @@ suite "Claim ops":
   test "Claims toBase64 roundtrip":
     let claims = newClaims(("sub", newStringClaim("user")), ("iss", newStringClaim("test")))
     let b64 = claims.toBase64
-    check b64.len > 0
+    check b64.len() > 0
 
   test "Empty claims":
     let claims = newClaims()
-    check claims.len == 0
+    check claims.len() == 0

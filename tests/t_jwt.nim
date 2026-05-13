@@ -18,7 +18,7 @@ proc tokenWithAlg(alg: string): JWT =
 
 proc signedHSToken(alg: string): JWT =
   result = tokenWithAlg(alg)
-  result.sign("your-256-bit-secret-key-here!")
+  result.sign("your-256-bit-secret-key-here-extra!")
 
 const
   rsPrivateKey = """-----BEGIN RSA PRIVATE KEY-----
@@ -106,7 +106,7 @@ suite "Token tests":
   test "Load from JSON and verify":
     var
       token = getToken()
-      secret = "your-256-bit-secret-key-here!"
+      secret = "your-256-bit-secret-key-here-extra!"
 
     token.sign(secret)
 
@@ -133,9 +133,9 @@ suite "Token tests":
     var hs384Token = signedHSToken("HS384")
     var hs512Token = signedHSToken("HS512")
     check:
-      hs256Token.verify("your-256-bit-secret-key-here!", HS256)
-      hs384Token.verify("your-256-bit-secret-key-here!", HS384)
-      hs512Token.verify("your-256-bit-secret-key-here!", HS512)
+      hs256Token.verify("your-256-bit-secret-key-here-extra!", HS256)
+      hs384Token.verify("your-256-bit-secret-key-here-extra!", HS384)
+      hs512Token.verify("your-256-bit-secret-key-here-extra!", HS512)
       not hs256Token.verify("wrong-secret", HS256)
     let parsed = ($hs256Token).toJWT()
     check:
@@ -176,7 +176,7 @@ suite "Token tests":
 
   test "Verify rejects wrong algorithm":
     var token = signedHSToken("HS256")
-    check token.verify("your-256-bit-secret-key-here!", HS384) == false
+    check token.verify("your-256-bit-secret-key-here-extra!", HS384) == false
 
   test "Verify rejects none algorithm":
     let header = %*{"alg": "none", "typ": "JWT"}
@@ -185,9 +185,9 @@ suite "Token tests":
 
   test "Sign rejects empty data":
     var token = getToken()
-    token.sign("your-256-bit-secret-key-here!")
+    token.sign("your-256-bit-secret-key-here-extra!")
     var token2 = getToken()
-    token2.sign("your-256-bit-secret-key-here!")
+    token2.sign("your-256-bit-secret-key-here-extra!")
     check ($token).len > 0
 
   test "signString rejects empty data":
@@ -206,7 +206,7 @@ suite "Token tests":
     var token = signedHSToken("HS256")
     let tokenStr = $token
     let parsed = tokenStr.toJWT()
-    check parsed.verify("your-256-bit-secret-key-here!", HS256)
+    check parsed.verify("your-256-bit-secret-key-here-extra!", HS256)
 
   test "toJWT from JsonNode":
     let node = %*{
@@ -221,8 +221,8 @@ suite "Token tests":
       now = getTime().toUnix.int
       exp = now - 60
     var token = getToken(claims = %{"exp": %exp})
-    token.sign("your-256-bit-secret-key-here!")
-    check token.verify("your-256-bit-secret-key-here!", HS512) == false
+    token.sign("your-256-bit-secret-key-here-extra!")
+    check token.verify("your-256-bit-secret-key-here-extra!", HS512) == false
 
   test "Loaded vs parsed for initJWT tokens":
     let header = %*{"alg": "HS256", "typ": "JWT"}

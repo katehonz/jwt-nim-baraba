@@ -22,11 +22,12 @@ type
     PS512          = "PS512"
 
 proc strToSignatureAlgorithm(s: string): SignatureAlgorithm =
-  let normalized = s.toUpperAscii()
   try:
-    result = parseEnum[SignatureAlgorithm](normalized)
+    result = parseEnum[SignatureAlgorithm](s)
     if result == NONE:
       raise newException(SecurityError, "'none' algorithm is not allowed")
+  except SecurityError:
+    raise
   except ValueError:
     raise newException(UnsupportedAlgorithm, "Algorithm '$1' is not supported" % s)
 
