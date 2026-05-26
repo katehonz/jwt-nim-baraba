@@ -126,10 +126,15 @@ proc verifySignature*(data: string, signature: seq[byte], secret: string,
 
 proc sign*(token: var JWT, secret: string) =
   assert token.signature.len == 0
-  token.signature = signString(token.parsed, secret, token.header.alg)
+  let algorithm = try: token.header.alg
+    except UnsupportedAlgorithm:
+      raise newException(SecurityError, "Token has unsupported algorithm")
+  token.signature = signString(token.parsed, secret, algorithm)
 
 proc verify*(token: JWT, secret: string, alg: SignatureAlgorithm): bool =
-  if token.header.alg != alg:
+  let tokenAlg = try: token.header.alg
+    except UnsupportedAlgorithm: return false
+  if tokenAlg != alg:
     return false
   if alg == NONE:
     return false

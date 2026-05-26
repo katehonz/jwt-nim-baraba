@@ -24,12 +24,10 @@ type
 proc strToSignatureAlgorithm(s: string): SignatureAlgorithm =
   try:
     result = parseEnum[SignatureAlgorithm](s)
-    if result == NONE:
-      raise newException(SecurityError, "'none' algorithm is not allowed")
-  except SecurityError:
-    raise
   except ValueError:
     raise newException(UnsupportedAlgorithm, "Algorithm '$1' is not supported" % s)
+  if result == NONE:
+    raise newException(SecurityError, "'none' algorithm is not allowed")
 
 proc isSecureAlgorithm*(alg: SignatureAlgorithm): bool =
   case alg

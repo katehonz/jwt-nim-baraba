@@ -1,5 +1,5 @@
 # Package
-version       = "2.1.0"
+version       = "2.1.2"
 author        = "Yuriy Glukhov"
 description   = "JSON Web Token library for Nim with BearSSL cryptography"
 license       = "MIT"
